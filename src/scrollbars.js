@@ -1,5 +1,5 @@
 /**
- * ng-scrollbars 0.0.11
+ * ng-scrollbars 0.0.9
  */
 (function () {
   'use strict';
@@ -61,14 +61,21 @@
 
     elem.mCustomScrollbar(config);
   }
+  
+	function getDynamicHeight(minHeight, offset, window){
+		return window.innerHeight < minHeight ? minHeight: window.innerHeight - offset;
+	}	
+	
 
-  function ScrollBarsDirective(ScrollBars) {
+  function ScrollBarsDirective(ScrollBars, $window) {
     return {
       scope: {
         ngScrollbarsConfig: '=?',
         ngScrollbarsUpdate: '=?',
-        ngScrollTo: '=?',
-        element: '=?'
+        ngScrollbarsMinHeight: '=?',
+        ngScrollbarsMinHeightOffset: '=?',
+        ngScrollbarsPosition: '=?',
+        element: '=?'        
       },
       link: function (scope, elem, attrs) {
 
@@ -76,7 +83,18 @@
 
         var defaults = ScrollBars.defaults;
         var configuredDefaults = $.mCustomScrollbar.defaults;
-
+                
+        if(scope.ngScrollbarsMinHeight){
+        	configuredDefaults.setHeight = getDynamicHeight(scope.ngScrollbarsMinHeight, scope.ngScrollbarsMinHeightOffset, $window);
+   
+        }
+   
+        
+        if(scope.ngScrollbarsPosition){
+        	configuredDefaults.scrollbarPosition = scope.ngScrollbarsPosition;
+       
+        }
+        
         scope.ngScrollbarsUpdate = function () {
           elem.mCustomScrollbar.apply(elem, arguments);
         };
@@ -84,13 +102,6 @@
         scope.$watch('ngScrollbarsConfig', function (newVal, oldVal) {
           if (newVal !== undefined) {
             render(defaults, configuredDefaults, elem, scope);
-          }
-        });
-
-        scope.$watch('ngScrollTo', function (newVal, oldVal) {
-          if (newVal !== undefined) {
-            elem.mCustomScrollbar('scrollTo', newVal);
-            scope.ngScrollTo = undefined;
           }
         });
 
@@ -104,6 +115,6 @@
     .directive('ngScrollbars', ScrollBarsDirective);
 
   ScrollBarsProvider.$inject = [];
-  ScrollBarsDirective.$inject = ['ScrollBars'];
+  ScrollBarsDirective.$inject = ['ScrollBars', '$window'];
 
 })();
