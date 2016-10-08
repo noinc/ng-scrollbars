@@ -1,5 +1,5 @@
 /**
- * ng-scrollbars 0.0.9
+ * ng-scrollbars 0.0.11
  */
 (function () {
   'use strict';
@@ -72,6 +72,7 @@
       scope: {
         ngScrollbarsConfig: '=?',
         ngScrollbarsUpdate: '=?',
+        ngScrollTo: '=?',
         ngScrollbarsMinHeight: '=?',
         ngScrollbarsMinHeightOffset: '=?',
         ngScrollbarsPosition: '=?',
@@ -104,6 +105,13 @@
             render(defaults, configuredDefaults, elem, scope);
           }
         });
+        
+        scope.$watch('ngScrollTo', function (newVal, oldVal) {
+            if (newVal !== undefined) {
+              elem.mCustomScrollbar('scrollTo', newVal);
+              scope.ngScrollTo = undefined;
+            }
+          });
 
         render(defaults, configuredDefaults, elem, scope);
       }
